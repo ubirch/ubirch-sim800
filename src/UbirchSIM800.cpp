@@ -202,9 +202,10 @@ bool UbirchSIM800::enableGPRS(uint16_t timeout) {
     expect_AT_OK(F("+CIPRXGET=1")); // we will receive manually
 
     bool attached = false;
-    while (!attached && timeout--) {
+    while (!attached && timeout > 0) {
         attached = expect_AT_OK(F("+CGATT=1"), 10000);
         delay(1000);
+	timeout -= 1000;
     }
     if (!attached) return false;
 
