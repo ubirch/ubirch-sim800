@@ -1,0 +1,12 @@
+//
+// Created by Matthias Jugel on 28/07/15.
+//
+
+#ifndef UBIRCH_SIM800_CONFIG_H
+#define UBIRCH_SIM800_CONFIG_H
+
+#define SIM800_APN "<apn>"
+#define SIM800_USER "<username>"
+#define SIM800_PASS "<password>"
+
+#endif //UBIRCH_SIM800_CONFIG_H
