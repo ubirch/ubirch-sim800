@@ -68,6 +68,9 @@ bool UbirchSIM800::reset(uint32_t serialSpeed) {
 
     delay(7000);
 
+    // RST high keeps the chip in reset without a diode, so put to low
+    digitalWrite(SIM800_RST, LOW);
+
     while (_serial.available()) _serial.read();
 
     expect_AT_OK(F(""));
