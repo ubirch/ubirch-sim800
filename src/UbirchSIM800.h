@@ -31,7 +31,7 @@
 #define STREAM Stream
 
 #if defined(TEENSYDUINO)
-    #define SIM800_BAUD 57600
+    #define SIM800_BAUD 115200
     #define SIM800_RST  6
     #define SIM800_KEY  7
     #define SIM800_PS   8
@@ -147,7 +147,7 @@ public:
                      uint16_t timeout = SIM800_SERIAL_TIMEOUT);
 
 #if defined(TEENSYDUINO)
-    HardwareSerial  _serial = Serial2;
+    HardwareSerial _serial = Serial2;
 #else
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
 #endif

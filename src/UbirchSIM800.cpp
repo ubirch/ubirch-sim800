@@ -25,9 +25,9 @@
 #include "UbirchSIM800.h"
 
 // debug AT i/o (very verbose)
-//#define DEBUG_AT
+#define DEBUG_AT
 // debug receiving and sending of packets (sizes)
-//#define DEBUG_PACKETS
+#define DEBUG_PACKETS
 // debugging of send/receive progress (not very verbose)
 #define DEBUG_PROGRESS
 
