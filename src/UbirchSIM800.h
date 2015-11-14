@@ -26,17 +26,24 @@
 
 // SIM800H settings
 #include <stdint.h>
-#include <SoftwareSerial.h>
 #include <Stream.h>
 
 #define STREAM Stream
 
-#define SIM800_BAUD 57600
-#define SIM800_RX   2
-#define SIM800_TX   3
-#define SIM800_RST  4
-#define SIM800_KEY  7
-#define SIM800_PS   8
+#if defined(TEENSYDUINO)
+    #define SIM800_BAUD 57600
+    #define SIM800_RST  6
+    #define SIM800_KEY  7
+    #define SIM800_PS   8
+#else
+    #include <SoftwareSerial.h>
+    #define SIM800_BAUD 57600
+    #define SIM800_RX   2
+    #define SIM800_TX   3
+    #define SIM800_RST  4
+    #define SIM800_KEY  7
+    #define SIM800_PS   8
+#endif
 
 #define SIM800_CMD_TIMEOUT 30000
 #define SIM800_SERIAL_TIMEOUT 1000
@@ -139,7 +146,11 @@ public:
     bool expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, void *ref2,
                      uint16_t timeout = SIM800_SERIAL_TIMEOUT);
 
+#if defined(TEENSYDUINO)
+    HardwareSerial  _serial = Serial2;
+#else
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
+#endif
 
 protected:
     const uint32_t _serialSpeed = SIM800_BAUD;

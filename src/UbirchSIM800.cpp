@@ -47,6 +47,9 @@
 #   define DEBUGQLN(...)
 #endif
 
+#if defined(TEENSYDUINO)
+#define sscanf_P    sscanf
+#endif
 #define println_param(prefix, p) print(F(prefix)); print(F(",\"")); print(p); println(F("\""));
 
 UbirchSIM800::UbirchSIM800() {
@@ -208,7 +211,7 @@ bool UbirchSIM800::enableGPRS(uint16_t timeout) {
     while (!attached && timeout > 0) {
         attached = expect_AT_OK(F("+CGATT=1"), 10000);
         delay(1000);
-	timeout -= 1000;
+        timeout -= 1000;
     }
     if (!attached) return false;
 
@@ -466,7 +469,7 @@ bool UbirchSIM800::send(char *buffer, size_t size, size_t &accepted) {
     println(size);
 
     if (!expect(F("> "))) return false;
-    _serial.write(buffer, size);
+    _serial.write((const uint8_t *) buffer, size);
 
     if (!expect_scan(F("DATA ACCEPT: 0,%lu"), &accepted, 3000)) {
         // we have a buffer of 319488 bytes, so we are optimistic,
