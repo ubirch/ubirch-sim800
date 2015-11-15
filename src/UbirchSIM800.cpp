@@ -47,9 +47,6 @@
 #   define DEBUGQLN(...)
 #endif
 
-#if defined(TEENSYDUINO)
-#define sscanf_P    sscanf
-#endif
 #define println_param(prefix, p) print(F(prefix)); print(F(",\"")); print(p); println(F("\""));
 
 UbirchSIM800::UbirchSIM800() {
@@ -432,7 +429,11 @@ bool UbirchSIM800::connect(const char *address, uint16_t port, uint16_t timeout)
         char ipaddress[23];
         println(F("AT+CIFSR"));
         expect_scan(F("%s"), ipaddress);
+#ifdef __AVR__
         connected = strcmp_P(ipaddress, PSTR("ERROR")) != 0;
+#else
+        connected = strcmp(ipaddress, "ERROR") != 0;
+#endif
         if (!connected) delay(1);
     } while (timeout-- && !connected);
 
@@ -457,7 +458,11 @@ bool UbirchSIM800::status() {
     DEBUGLN(status);
     if (!expect_OK()) return false;
 
+#ifdef __AVR__
     return strcmp_P(status, PSTR("CONNECTED")) < 0;
+#else
+    return strcmp(status, "CONNECTED") < 0;
+#endif
 }
 
 bool UbirchSIM800::disconnect() {
@@ -607,7 +612,11 @@ bool UbirchSIM800::expect(const __FlashStringHelper *expected, uint16_t timeout)
     PRINT(") ");
     DEBUGQLN(buf);
 #endif
+#ifdef __AVR__
     return strcmp_P(buf, (char PROGMEM *) expected) == 0;
+#else
+    return strcmp(buf, (const char *) expected) == 0;
+#endif
 }
 
 bool UbirchSIM800::expect_OK(uint16_t timeout) {
@@ -623,7 +632,11 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, ui
     PRINT(") ");
     DEBUGQLN(buf);
 #endif
+#ifdef __AVR__
     return sscanf_P(buf, (const char PROGMEM *) pattern, ref) == 1;
+#else
+    return sscanf(buf, (const char *) pattern, ref) == 1;
+#endif
 }
 
 bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, uint16_t timeout) {
@@ -635,7 +648,11 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, vo
     PRINT(") ");
     DEBUGQLN(buf);
 #endif
+#ifdef __AVR__
     return sscanf_P(buf, (const char PROGMEM *) pattern, ref, ref1) == 2;
+#else
+    return sscanf(buf, (const char *) pattern, ref, ref1) == 2;
+#endif
 }
 
 bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, void *ref2,
@@ -648,6 +665,10 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, vo
     PRINT(") ");
     DEBUGQLN(buf);
 #endif
+#ifdef __AVR__
     return sscanf_P(buf, (const char PROGMEM *) pattern, ref, ref1, ref2) == 1;
+#else
+    return sscanf(buf, (const char *) pattern, ref, ref1, ref2) == 1;
+#endif
 }
 
