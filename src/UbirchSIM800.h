@@ -30,19 +30,19 @@
 
 #define STREAM Stream
 
-#if defined(TEENSYDUINO)
-    #define SIM800_BAUD 115200
-    #define SIM800_RST  6
-    #define SIM800_KEY  7
-    #define SIM800_PS   8
+#ifdef __AVR__
+#include <SoftwareSerial.h>
+#define SIM800_BAUD 57600
+#define SIM800_RX   2
+#define SIM800_TX   3
+#define SIM800_RST  4
+#define SIM800_KEY  7
+#define SIM800_PS   8
 #else
-    #include <SoftwareSerial.h>
-    #define SIM800_BAUD 57600
-    #define SIM800_RX   2
-    #define SIM800_TX   3
-    #define SIM800_RST  4
-    #define SIM800_KEY  7
-    #define SIM800_PS   8
+#define SIM800_BAUD 115200
+#define SIM800_RST  6
+#define SIM800_KEY  7
+#define SIM800_PS   8
 #endif
 
 #define SIM800_CMD_TIMEOUT 30000
@@ -146,10 +146,10 @@ public:
     bool expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, void *ref2,
                      uint16_t timeout = SIM800_SERIAL_TIMEOUT);
 
-#if defined(TEENSYDUINO)
-    HardwareSerial _serial = Serial2;
-#else
+#ifdef __AVR__
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
+#else
+    HardwareSerial _serial = Serial2;
 #endif
 
 protected:
