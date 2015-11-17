@@ -39,6 +39,9 @@
 #define SIM800_KEY  7
 #define SIM800_PS   8
 #else
+#ifdef SAM_ZERO
+#include <Uart.h>
+#endif
 #define SIM800_BAUD 115200
 #define SIM800_RST  6
 #define SIM800_KEY  7
@@ -152,7 +155,7 @@ public:
 #ifdef TEENSYDUINO
     HardwareSerial2 _serial = Serial2;
 #else
-    HardwareSerial _serial = Serial1;
+    Uart _serial = Serial5;
 #endif
 #endif
 
