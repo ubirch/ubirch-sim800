@@ -149,7 +149,11 @@ public:
 #ifdef __AVR__
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
 #else
-    HardwareSerial _serial = Serial2;
+#ifdef TEENSYDUINO
+    HardwareSerial2 _serial = Serial2;
+#else
+    HardwareSerial _serial = Serial1;
+#endif
 #endif
 
 protected:
