@@ -147,7 +147,7 @@ public:
                      uint16_t timeout = SIM800_SERIAL_TIMEOUT);
 
 #if defined(TEENSYDUINO)
-    HardwareSerial _serial = Serial2;
+    HardwareSerial2 _serial = Serial2;
 #else
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
 #endif
