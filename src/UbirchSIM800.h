@@ -39,13 +39,15 @@
 #define SIM800_KEY  7
 #define SIM800_PS   8
 #else
-#ifdef SAM_ZERO
-#include <Uart.h>
-#endif
 #define SIM800_BAUD 115200
 #define SIM800_RST  6
 #define SIM800_KEY  7
 #define SIM800_PS   8
+#ifdef F
+#undef F
+#define F(s) (s)
+#endif
+#define __FlashStringHelper char
 #endif
 
 #define SIM800_CMD_TIMEOUT 30000
@@ -92,13 +94,13 @@ public:
     bool status();
 
     // connect a pure network connection, may send() data after it is opened
-    bool connect(const char *address, uint16_t port, uint16_t timeout = SIM800_CMD_TIMEOUT);
+    bool connect(const char *address, unsigned short int port, uint16_t timeout = SIM800_CMD_TIMEOUT);
 
     // disconnect a pure network connection
     bool disconnect();
 
     // send data down a pure network connection
-    bool send(char *buffer, size_t size, size_t &accepted);
+    bool send(char *buffer, size_t size, unsigned long int &accepted);
 
     size_t receive(char *buffer, size_t size);
 
@@ -110,19 +112,19 @@ public:
      */
 
     // HTTP GET request, returns the status and puts length in the referenced variable
-    uint16_t HTTP_get(const char *url, uint32_t &length);
+    unsigned short int HTTP_get(const char *url, unsigned long int &length);
 
     // HTTP GET request, stores the received data in the stream (if length is > 0)
-    uint16_t HTTP_get(const char *url, uint32_t &length, STREAM &file);
+    unsigned short int HTTP_get(const char *url, unsigned long int &length, STREAM &file);
 
     // manually read the payload after a GET request, returns the amount read, call multiple times to read whole
     size_t HTTP_get_read(char *buffer, uint32_t start, size_t length);
 
     // HTTP HTTP_post request, returns the status
-    uint16_t HTTP_post(const char *url, uint32_t &length);
+    unsigned short int HTTP_post(const char *url, unsigned long int &length);
 
     // HTTP HTTP_post request, reads the data from the stream and returns the result
-    uint16_t HTTP_post(const char *url, uint32_t &length, STREAM &file, uint32_t size);
+    unsigned short int HTTP_post(const char *url, unsigned long int &length, STREAM &file, uint32_t size);
 
     // send a command (without AT) and expect it to return a certain string
     bool expect_AT(const __FlashStringHelper *cmd, const __FlashStringHelper *expected,
@@ -152,11 +154,7 @@ public:
 #ifdef __AVR__
     SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
 #else
-#ifdef TEENSYDUINO
     HardwareSerial2 _serial = Serial2;
-#else
-    Uart _serial = Serial5;
-#endif
 #endif
 
 protected:
@@ -174,15 +172,17 @@ protected:
     // eat input until no more is available, basically sucks up echos and left over status messages
     void eatEcho();
 
-    void print(const __FlashStringHelper *s);
 
     void print(const char *s);
 
     void print(uint32_t s);
 
-    void println(const __FlashStringHelper *s);
-
     void println(const char *s);
+
+#ifdef __AVR__
+    void print(const __FlashStringHelper *s);
+    void println(const __FlashStringHelper *s);
+#endif
 
     void println(uint32_t s);
 
