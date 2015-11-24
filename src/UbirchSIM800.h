@@ -154,26 +154,11 @@ public:
     bool expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, void *ref2,
                      uint16_t timeout = SIM800_SERIAL_TIMEOUT);
 
-#ifdef __AVR__
-    SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
-#else
-    HardwareSerial2 _serial = Serial2;
-#endif
-
-protected:
-    const uint32_t _serialSpeed = SIM800_BAUD;
-    const __FlashStringHelper *_apn;
-    const __FlashStringHelper *_user;
-    const __FlashStringHelper *_pass;
-
     // read raw data
     size_t read(char *buffer, size_t length);
 
     // read a single line into the given buffer
     size_t readline(char *buffer, size_t max, uint16_t timeout);
-
-    // eat input until no more is available, basically sucks up echos and left over status messages
-    void eatEcho();
 
 
     void print(const char *s);
@@ -189,7 +174,23 @@ protected:
 
     void println(uint32_t s);
 
+#ifdef __AVR__
+    SoftwareSerial _serial = SoftwareSerial(SIM800_TX, SIM800_RX);
+#else
+    HardwareSerial2 _serial = Serial2;
+#endif
+
+protected:
+    const uint32_t _serialSpeed = SIM800_BAUD;
+    const __FlashStringHelper *_apn;
+    const __FlashStringHelper *_user;
+    const __FlashStringHelper *_pass;
+
+    // eat input until no more is available, basically sucks up echos and left over status messages
+    void eatEcho();
+
     bool is_urc(const char *line, size_t len);
+
 };
 
 // this useful list found here: https://github.com/cloudyourcar/attentive
