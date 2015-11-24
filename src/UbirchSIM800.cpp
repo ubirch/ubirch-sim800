@@ -32,6 +32,7 @@
 
 // debug AT i/o (very verbose)
 #define DEBUG_AT
+#define DEBUG_URC
 // debug receiving and sending of packets (sizes)
 #define DEBUG_PACKETS
 // debugging of send/receive progress (not very verbose)
@@ -158,8 +159,6 @@ bool UbirchSIM800::shutdown() {
             digitalWrite(SIM800_KEY, HIGH);
             pinMode(SIM800_KEY, INPUT);
             pinMode(SIM800_KEY, INPUT_PULLUP);
-        } else {
-            PRINTLN("shutdown(): already shut down");
         }
     }
     PRINTLN("!!! SIM800 shutdown ok");
@@ -573,6 +572,7 @@ void UbirchSIM800::println(uint32_t s) {
     eatEcho();
     _serial.println();
 }
+
 #ifdef __AVR__
 
 void UbirchSIM800::println(const char *s) {
@@ -606,7 +606,8 @@ bool UbirchSIM800::expect_AT_OK(const __FlashStringHelper *cmd, uint16_t timeout
 
 bool UbirchSIM800::expect(const __FlashStringHelper *expected, uint16_t timeout) {
     char buf[SIM800_BUFSIZE];
-    size_t len = readline(buf, SIM800_BUFSIZE, timeout);
+    size_t len;
+    do len = readline(buf, SIM800_BUFSIZE, timeout); while (is_urc(buf, len));
 #ifdef DEBUG_AT
     PRINT("--- (");
     DEBUG(len);
@@ -622,7 +623,8 @@ bool UbirchSIM800::expect_OK(uint16_t timeout) {
 
 bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, uint16_t timeout) {
     char buf[SIM800_BUFSIZE];
-    size_t len = readline(buf, SIM800_BUFSIZE, timeout);
+    size_t len;
+    do len = readline(buf, SIM800_BUFSIZE, timeout); while (is_urc(buf, len));
 #ifdef DEBUG_AT
     PRINT("--- (");
     DEBUG(len);
@@ -634,7 +636,8 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, ui
 
 bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, uint16_t timeout) {
     char buf[SIM800_BUFSIZE];
-    size_t len = readline(buf, SIM800_BUFSIZE, timeout);
+    size_t len;
+    do len = readline(buf, SIM800_BUFSIZE, timeout); while (is_urc(buf, len));
 #ifdef DEBUG_AT
     PRINT("--- (");
     DEBUG(len);
@@ -647,7 +650,8 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, vo
 bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, void *ref1, void *ref2,
                                uint16_t timeout) {
     char buf[SIM800_BUFSIZE];
-    size_t len = readline(buf, SIM800_BUFSIZE, timeout);
+    size_t len;
+    do len = readline(buf, SIM800_BUFSIZE, timeout); while (is_urc(buf, len));
 #ifdef DEBUG_AT
     PRINT("--- (");
     DEBUG(len);
@@ -656,4 +660,30 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, vo
 #endif
     return sscanf_P(buf, (const char PROGMEM *) pattern, ref, ref1, ref2) == 1;
 }
+
+bool UbirchSIM800::is_urc(const char *line, size_t len) {
+    urc_status = 0xff;
+
+    for (uint8_t i = 0; i < 17; i++) {
+#ifdef __AVR__
+        const char *urc = (const char *)pgm_read_word(&(_urc_messages[i]));
+#else
+        const char *urc = _urc_messages[i];
+#endif
+        size_t urc_len = strlen(urc);
+        if (len >= urc_len && !strncmp(urc, line, urc_len)) {
+#ifdef DEBUG_URC
+            PRINT("!!! URC(");
+            DEBUG(i);
+            PRINT(") ");
+            DEBUGLN(urc);
+#endif
+            urc_status = i;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 

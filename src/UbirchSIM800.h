@@ -57,6 +57,9 @@
 class UbirchSIM800 {
 
 public:
+    // if an unsolicitited result code is detected, it's number (0-18) is set here
+    uint8_t urc_status = 0xff;
+
     UbirchSIM800();
 
     // stores apn, username and password for the time beeing
@@ -186,6 +189,43 @@ protected:
 
     void println(uint32_t s);
 
+    bool is_urc(const char *line, size_t len);
+};
+
+// this useful list found here: https://github.com/cloudyourcar/attentive
+
+/* incoming socket data notification */
+const char * const urc_01 PROGMEM = "+CIPRXGET: 1,";
+/* FTP state change notification */
+const char * const urc_02 PROGMEM = "+FTPGET: 1,";
+/* PDP disconnected */
+const char * const urc_03 PROGMEM = "+PDP: DEACT";
+/* PDP disconnected (for SAPBR apps) */
+const char * const urc_04 PROGMEM = "+SAPBR 1: DEACT";
+/* AT+CLTS network name */
+const char * const urc_05 PROGMEM = "*PSNWID:";
+/* AT+CLTS time */
+const char * const urc_06 PROGMEM = "*PSUTTZ:";
+/* AT+CLTS timezone */
+const char * const urc_07 PROGMEM = "+CTZV:";
+/* AT+CLTS dst information */
+const char * const urc_08 PROGMEM = "DST:";
+/* AT+CLTS undocumented indicator */
+const char * const urc_09 PROGMEM = "+CIEV:";
+/* Assorted crap on newer firmware releases. */
+const char * const urc_10 PROGMEM = "RDY";
+const char * const urc_11 PROGMEM = "+CPIN: READY";
+const char * const urc_12 PROGMEM = "Call Ready";
+const char * const urc_13 PROGMEM = "SMS Ready";
+const char * const urc_14 PROGMEM = "NORMAL POWER DOWN";
+const char * const urc_15 PROGMEM = "UNDER-VOLTAGE POWER DOWN";
+const char * const urc_16 PROGMEM = "UNDER-VOLTAGE WARNNING";
+const char * const urc_17 PROGMEM = "OVER-VOLTAGE POWER DOWN";
+const char * const urc_18 PROGMEM = "OVER-VOLTAGE WARNNING";
+
+const char * const _urc_messages[] PROGMEM = {
+        urc_01, urc_02, urc_03, urc_04, urc_06, urc_07, urc_08, urc_09, urc_10,
+        urc_11, urc_12, urc_13, urc_14, urc_15, urc_16, urc_17, urc_18
 };
 
 #endif //UBIRCH_SIM800_H
