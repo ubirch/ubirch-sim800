@@ -13,6 +13,11 @@ the response. To do so is very simple and uses the Arduino Stream class.
 Apart from the GET request, you can play with the AT commands of the SIM800
 by connecting a serial console to your board.
 
+## Works with ...
+
+- Arduino compatible boards (AVR, ARM)
+- Teensy-LC, Teensy 3.1/3.2
+
 ## LICENSE
 
     Copyright 2015 ubirch GmbH (http://www.ubirch.com)
