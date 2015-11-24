@@ -32,6 +32,8 @@
 
 #ifdef __AVR__
 #include <SoftwareSerial.h>
+// this is the maximum I could do using the board-mounted SIM800 on the ubirch #1
+// if you are using an externally wired Modem, you may have to try a lower baud rate
 #define SIM800_BAUD 57600
 #define SIM800_RX   2
 #define SIM800_TX   3

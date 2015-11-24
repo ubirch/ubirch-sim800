@@ -416,7 +416,7 @@ inline size_t UbirchSIM800::read(char *buffer, size_t length) {
     return idx;
 }
 
-bool UbirchSIM800::connect(const char *address, uint16_t port, uint16_t timeout) {
+bool UbirchSIM800::connect(const char *address, unsigned short int port, uint16_t timeout) {
     if (!expect_AT(F("+CIPSHUT"), F("SHUT OK"))) return false;
     if (!expect_AT_OK(F("+CMEE=2"))) return false;
     if (!expect_AT_OK(F("+CIPQSEND=1"))) return false;
