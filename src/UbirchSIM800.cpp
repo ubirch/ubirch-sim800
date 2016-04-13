@@ -658,7 +658,7 @@ bool UbirchSIM800::expect_scan(const __FlashStringHelper *pattern, void *ref, vo
     PRINT(") ");
     DEBUGQLN(buf);
 #endif
-    return sscanf_P(buf, (const char PROGMEM *) pattern, ref, ref1, ref2) == 1;
+    return sscanf_P(buf, (const char PROGMEM *) pattern, ref, ref1, ref2) == 3;
 }
 
 bool UbirchSIM800::is_urc(const char *line, size_t len) {
