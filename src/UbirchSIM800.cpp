@@ -267,7 +267,7 @@ unsigned short int UbirchSIM800::HTTP_get(const char *url, unsigned long int &le
 
     if (!expect_AT_OK(F("+HTTPINIT"))) return 1000;
     if (!expect_AT_OK(F("+HTTPPARA=\"CID\",1"))) return 1101;
-    if (!expect_AT_OK(F("+HTTPPARA=\"UA\",\"UBIRCH#1\""))) return 1102;
+    if (!expect_AT_OK(F("+HTTPPARA=\"UA\",\"UBIRCH#1 r0.1\""))) return 1102;
     if (!expect_AT_OK(F("+HTTPPARA=\"REDIR\",1"))) return 1103;
     println_param("AT+HTTPPARA=\"URL\"", url);
     if (!expect_OK()) return 1110;
