@@ -70,10 +70,10 @@ public:
     bool unlock(const __FlashStringHelper *pin);
 
     // reset the SIM800
-    bool reset();
+    bool reset(bool fona = true);
 
     // resets the SIM chip (if the chip is already awake)
-    bool reset(uint32_t serialSpeed);
+    bool reset(uint32_t serialSpeed, bool fona = true);
 
     // shut down the SIM chip to reduce power usage
     bool shutdown();

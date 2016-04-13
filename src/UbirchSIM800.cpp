@@ -57,11 +57,11 @@
 UbirchSIM800::UbirchSIM800() {
 }
 
-bool UbirchSIM800::reset() {
-    return reset(_serialSpeed);
+bool UbirchSIM800::reset(bool fona) {
+    return reset(_serialSpeed, fona);
 }
 
-bool UbirchSIM800::reset(uint32_t serialSpeed) {
+bool UbirchSIM800::reset(uint32_t serialSpeed, bool fona) {
     _serial.begin(serialSpeed);
 
     pinMode(SIM800_RST, OUTPUT);
@@ -74,7 +74,7 @@ bool UbirchSIM800::reset(uint32_t serialSpeed) {
     delay(7000);
 
     // RST high keeps the chip in reset without a diode, so put to low
-    digitalWrite(SIM800_RST, LOW);
+    if(!fona) digitalWrite(SIM800_RST, LOW);
 
     while (_serial.available()) _serial.read();
 
