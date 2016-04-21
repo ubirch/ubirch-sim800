@@ -95,6 +95,12 @@ public:
 
     bool IMEI(char *imei);
 
+    // query battery status, percentage full and voltage
+    bool battery(uint16_t &bat_status, uint16_t &bat_percent, uint16_t &bat_voltage);
+
+    // query approximate GPS location
+    bool location(char *&lat, char *&lon);
+
     // query status of the network connection
     bool status();
 
@@ -192,10 +198,9 @@ protected:
     const __FlashStringHelper *_pass;
 
     // eat input until no more is available, basically sucks up echos and left over status messages
-    void eatEcho();
+    void eat_echo();
 
     bool is_urc(const char *line, size_t len);
-
 };
 
 // this useful list found here: https://github.com/cloudyourcar/attentive

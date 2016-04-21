@@ -117,6 +117,26 @@ bool UbirchSIM800::IMEI(char *imei) {
     return expect_OK();
 }
 
+bool UbirchSIM800::battery(uint16_t &bat_status, uint16_t &bat_percent, uint16_t &bat_voltage) {
+  println(F("AT+CBC"));
+  expect_scan(F("+CBC: %d,%d,%d"), &bat_status, &bat_percent, &bat_voltage);
+  return expect_OK();
+}
+
+bool UbirchSIM800::location(char *&lat, char *&lon) {
+  uint16_t loc_status;
+  char reply[64];
+  println(F("AT+CIPGSMLOC=1,1"));
+  if (!expect_scan(F("+CIPGSMLOC: %d,%s"), &loc_status, reply, 60000)) {
+    Serial.println(F("GPS lookup failed"));
+  } else {
+    lon = strdup(strtok(reply, ","));
+    lat = strdup(strtok(NULL, ","));
+  }
+  expect_OK();
+  return loc_status == 0 && lat && lon;
+}
+
 bool UbirchSIM800::wakeup() {
     PRINTLN("!!! SIM800 wakeup");
 
@@ -584,7 +604,7 @@ size_t UbirchSIM800::readline(char *buffer, size_t max, uint16_t timeout) {
     return idx;
 };
 
-void UbirchSIM800::eatEcho() {
+void UbirchSIM800::eat_echo() {
     while (_serial.available()) {
         _serial.read();
         // don't be too quick or we might not have anything available
@@ -616,7 +636,7 @@ void UbirchSIM800::println(const __FlashStringHelper *s) {
     DEBUGQLN(s);
 #endif
     _serial.print(s);
-    eatEcho();
+  eat_echo();
     _serial.println();
 }
 
@@ -626,7 +646,7 @@ void UbirchSIM800::println(uint32_t s) {
     DEBUGLN(s);
 #endif
     _serial.print(s);
-    eatEcho();
+  eat_echo();
     _serial.println();
 }
 
@@ -638,7 +658,7 @@ void UbirchSIM800::println(const char *s) {
     DEBUGQLN(s);
 #endif
     _serial.print(s);
-    eatEcho();
+  eat_echo();
     _serial.println();
 }
 
