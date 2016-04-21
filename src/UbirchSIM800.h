@@ -122,11 +122,14 @@ public:
     // HTTP GET request, stores the received data in the stream (if length is > 0)
     unsigned short int HTTP_get(const char *url, unsigned long int &length, STREAM &file);
 
-    // manually read the payload after a GET request, returns the amount read, call multiple times to read whole
-    size_t HTTP_get_read(char *buffer, uint32_t start, size_t length);
+    // manually read the payload after a request, returns the amount read, call multiple times to read whole
+    size_t HTTP_read(char *buffer, uint32_t start, size_t length);
 
     // HTTP HTTP_post request, returns the status
     unsigned short int HTTP_post(const char *url, unsigned long int &length);
+
+    // HTTP HTTP_post request, returns the status
+    unsigned short int HTTP_post(const char *url, unsigned long int &length, char *buffer, uint32_t size);
 
     // HTTP HTTP_post request, reads the data from the stream and returns the result
     unsigned short int HTTP_post(const char *url, unsigned long int &length, STREAM &file, uint32_t size);

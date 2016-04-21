@@ -292,7 +292,7 @@ unsigned short int UbirchSIM800::HTTP_get(const char *url, unsigned long int &le
     char *buffer = (char *) malloc(SIM800_BUFSIZE);
     uint32_t pos = 0;
     do {
-        size_t r = HTTP_get_read(buffer, pos, SIM800_BUFSIZE);
+        size_t r = HTTP_read(buffer, pos, SIM800_BUFSIZE);
 #if !defined(NDEBUG) && defined(DEBUG_PROGRESS)
         if ((pos % 10240) == 0) {
             PRINT(" ");
@@ -308,7 +308,7 @@ unsigned short int UbirchSIM800::HTTP_get(const char *url, unsigned long int &le
     return status;
 }
 
-size_t UbirchSIM800::HTTP_get_read(char *buffer, uint32_t start, size_t length) {
+size_t UbirchSIM800::HTTP_read(char *buffer, uint32_t start, size_t length) {
     print(F("AT+HTTPREAD="));
     print(start);
     print(F(","));
@@ -347,6 +347,63 @@ unsigned short int UbirchSIM800::HTTP_post(const char *url, unsigned long int &l
 
     return status;
 }
+
+unsigned short int UbirchSIM800::HTTP_post(const char *url, unsigned long int &length, char *buffer, uint32_t size) {
+  expect_AT_OK(F("+HTTPTERM"));
+  delay(100);
+
+  length = 0;
+
+  if (!expect_AT_OK(F("+HTTPINIT"))) return 1000;
+  if (!expect_AT_OK(F("+HTTPPARA=\"CID\",1"))) return 1101;
+  if (!expect_AT_OK(F("+HTTPPARA=\"UA\",\"UBIRCH#1\""))) return 1102;
+  if (!expect_AT_OK(F("+HTTPPARA=\"REDIR\",1"))) return 1103;
+  println_param("AT+HTTPPARA=\"URL\"", url);
+  if (!expect_OK()) return 1110;
+
+  print(F("AT+HTTPDATA="));
+  print(size);
+  print(F(","));
+  println((uint32_t) 120000);
+
+  if (!expect(F("DOWNLOAD"))) return 0;
+
+  uint32_t pos = 0, r = 0;
+
+  do {
+    for (r = 0; pos < size && r < SIM800_BUFSIZE; r++) {
+      const uint8_t c = (uint8_t) buffer[pos++];
+#ifndef NDEBUG
+      if ((pos % 10240) == 0) {
+        PRINT(" ");
+        DEBUGLN(pos);
+      } else if (pos % (1024) == 0) { PRINT(">"); }
+#endif
+      r = _serial.write(c);
+    }
+
+    if (r < SIM800_BUFSIZE) {
+#if !defined(NDEBUG) && defined(DEBUG_PROGRESS)
+      PRINTLN("EOF");
+#endif
+      break;
+    }
+  } while (r == SIM800_BUFSIZE);
+
+  free(buffer);
+  PRINTLN("");
+
+  if (!expect_OK(5000)) return 1005;
+
+  if (!expect_AT_OK(F("+HTTPACTION=1"))) return 1004;
+
+  // wait for the action to be completed, give it 5s for each try
+  uint16_t status;
+  while (!expect_scan(F("+HTTPACTION: 1,%hu,%lu"), &status, &length, 5000));
+
+  return status;
+}
+
 
 unsigned short int UbirchSIM800::HTTP_post(const char *url, unsigned long int &length, STREAM &file, uint32_t size) {
     expect_AT_OK(F("+HTTPTERM"));
