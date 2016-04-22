@@ -342,7 +342,7 @@ size_t UbirchSIM800::HTTP_read(char *buffer, uint32_t start, size_t length) {
     PRINT("~~~ PACKET: ");
     DEBUGLN(available);
 #endif
-    size_t idx = read(buffer, available);
+    size_t idx = read(buffer, (size_t) available);
     if (!expect_OK()) return 0;
 #ifdef DEBUG_PACKETS
     PRINT("~~~ DONE: ");
@@ -554,7 +554,7 @@ size_t UbirchSIM800::receive(char *buffer, size_t size) {
         unsigned long int requested, confirmed;
         if (!expect_scan(F("+CIPRXGET: 2,%*d,%lu,%lu"), &requested, &confirmed)) return 0;
 
-        actual += read(buffer, confirmed);
+        actual += read(buffer, (size_t) confirmed);
     }
 
     return actual;
