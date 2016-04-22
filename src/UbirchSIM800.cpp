@@ -31,10 +31,10 @@
 #define println_param(prefix, p) print(F(prefix)); print(F(",\"")); print(p); println(F("\""));
 
 // debug AT i/o (very verbose)
-#define DEBUG_AT
+//#define DEBUG_AT
 #define DEBUG_URC
 // debug receiving and sending of packets (sizes)
-#define DEBUG_PACKETS
+//#define DEBUG_PACKETS
 // debugging of send/receive progress (not very verbose)
 #define DEBUG_PROGRESS
 
@@ -218,7 +218,9 @@ bool UbirchSIM800::registerNetwork(uint16_t timeout) {
         }
 #endif
         if ((n == 1 || n == 5)) {
-            PRINTLN("");
+#if !defined(NDEBUG) && defined(DEBUG_PROGRESS)
+          PRINTLN("");
+#endif
             return true;
         }
         delay(1000);
@@ -387,31 +389,12 @@ unsigned short int UbirchSIM800::HTTP_post(const char *url, unsigned long int &l
   println((uint32_t) 120000);
 
   if (!expect(F("DOWNLOAD"))) return 0;
-
-  uint32_t pos = 0, r = 0;
-
-  do {
-    for (r = 0; pos < size && r < SIM800_BUFSIZE; r++) {
-      const uint8_t c = (uint8_t) buffer[pos++];
-#ifndef NDEBUG
-      if ((pos % 10240) == 0) {
-        PRINT(" ");
-        DEBUGLN(pos);
-      } else if (pos % (1024) == 0) { PRINT(">"); }
+#ifdef DEBUG_PACKETS
+  PRINT("~~~ '");
+  DEBUG(buffer);
+  PRINTLN("'");
 #endif
-      r = _serial.write(c);
-    }
-
-    if (r < SIM800_BUFSIZE) {
-#if !defined(NDEBUG) && defined(DEBUG_PROGRESS)
-      PRINTLN("EOF");
-#endif
-      break;
-    }
-  } while (r == SIM800_BUFSIZE);
-
-  free(buffer);
-  PRINTLN("");
+  _serial.write(buffer, size);
 
   if (!expect_OK(5000)) return 1005;
 
