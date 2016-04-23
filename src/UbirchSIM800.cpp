@@ -31,7 +31,7 @@
 #define println_param(prefix, p) print(F(prefix)); print(F(",\"")); print(p); println(F("\""));
 
 // debug AT i/o (very verbose)
-#define DEBUG_AT
+//#define DEBUG_AT
 #define DEBUG_URC
 // debug receiving and sending of packets (sizes)
 //#define DEBUG_PACKETS
@@ -171,7 +171,7 @@ bool UbirchSIM800::shutdown() {
   expect_AT_OK(F("+CPOWD=1"));
   expect(F("NORMAL POWER DOWN"), 5000);
 
-  if (urc_status != 12 || digitalRead(SIM800_PS) == HIGH) {
+  if (urc_status != 12 && digitalRead(SIM800_PS) == HIGH) {
     PRINTLN("shutdown() using PWRKEY, AT+CPOWD=1 failed");
     pinMode(SIM800_KEY, OUTPUT);
     digitalWrite(SIM800_KEY, LOW);
