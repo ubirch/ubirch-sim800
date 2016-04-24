@@ -175,7 +175,7 @@ bool UbirchSIM800::shutdown() {
   expect(F("NORMAL POWER DOWN"), 5000);
 
   if (urc_status != 12 && digitalRead(SIM800_PS) == HIGH) {
-    PRINTLN("SIM800 shutdown using PWRKEY");
+    PRINTLN("!!! SIM800 shutdown using PWRKEY");
     pinMode(SIM800_KEY, OUTPUT);
     pinMode(SIM800_PS, INPUT);
     digitalWrite(SIM800_KEY, LOW);
