@@ -119,11 +119,13 @@ bool UbirchSIM800::IMEI(char *imei) {
 
 bool UbirchSIM800::battery(uint16_t &bat_status, uint16_t &bat_percent, uint16_t &bat_voltage) {
   println(F("AT+CBC"));
-  expect_scan(F("+CBC: %d,%d,%d"), &bat_status, &bat_percent, &bat_voltage);
+  if(!expect_scan(F("+CBC: %d,%d,%d"), &bat_status, &bat_percent, &bat_voltage)) {
+    Serial.println(F("BAT status lookup failed"));
+  }
   return expect_OK();
 }
 
-bool UbirchSIM800::location(char *&lat, char *&lon) {
+bool UbirchSIM800::location(char *&lat, char *&lon, char *&date, char *&time) {
   uint16_t loc_status;
   char reply[64];
   println(F("AT+CIPGSMLOC=1,1"));
@@ -132,9 +134,10 @@ bool UbirchSIM800::location(char *&lat, char *&lon) {
   } else {
     lon = strdup(strtok(reply, ","));
     lat = strdup(strtok(NULL, ","));
+    date = strdup(strtok(NULL, ","));
+    time = strdup(strtok(NULL, ","));
   }
-  expect_OK();
-  return loc_status == 0 && lat && lon;
+  return expect_OK() && loc_status == 0 && lat && lon;
 }
 
 bool UbirchSIM800::wakeup() {
@@ -143,7 +146,7 @@ bool UbirchSIM800::wakeup() {
   expect_AT_OK(F(""));
   // check if the chip is already awake, otherwise start wakeup
   if (!expect_AT_OK(F(""), 5000)) {
-    PRINTLN("!!! using PWRKEY wakeup procedure");
+    PRINTLN("!!! SIM800 using PWRKEY wakeup procedure");
     pinMode(SIM800_KEY, OUTPUT);
     pinMode(SIM800_PS, INPUT);
     do {
@@ -172,12 +175,11 @@ bool UbirchSIM800::shutdown() {
   expect(F("NORMAL POWER DOWN"), 5000);
 
   if (urc_status != 12 && digitalRead(SIM800_PS) == HIGH) {
-    PRINTLN("shutdown() using PWRKEY, AT+CPOWD=1 failed");
+    PRINTLN("SIM800 shutdown using PWRKEY");
     pinMode(SIM800_KEY, OUTPUT);
+    pinMode(SIM800_PS, INPUT);
     digitalWrite(SIM800_KEY, LOW);
-    pinMode(SIM800_KEY, INPUT);
-    for (; digitalRead(SIM800_KEY) == LOW;);
-    pinMode(SIM800_KEY, OUTPUT);
+    for (uint8_t s = 30; s > 0 && digitalRead(SIM800_PS) != LOW; --s) delay(1000);
     digitalWrite(SIM800_KEY, HIGH);
     pinMode(SIM800_KEY, INPUT);
     pinMode(SIM800_KEY, INPUT_PULLUP);
@@ -187,7 +189,7 @@ bool UbirchSIM800::shutdown() {
 }
 
 bool UbirchSIM800::registerNetwork(uint16_t timeout) {
-  PRINTLN("!!! waiting for network registration");
+  PRINTLN("!!! SIM800 waiting for network registration");
   expect_AT_OK(F(""));
   while (timeout -= 1000) {
     unsigned short int n = 0;
@@ -734,7 +736,7 @@ bool UbirchSIM800::is_urc(const char *line, size_t len) {
     size_t urc_len = strlen(urc);
     if (len >= urc_len && !strncmp(urc, line, urc_len)) {
 #ifdef DEBUG_URC
-      PRINT("!!! URC(");
+      PRINT("!!! SIM800 URC(");
       DEBUG(i);
       PRINT(") ");
       DEBUGLN(urc);

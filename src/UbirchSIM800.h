@@ -99,7 +99,7 @@ public:
     bool battery(uint16_t &bat_status, uint16_t &bat_percent, uint16_t &bat_voltage);
 
     // query approximate GPS location
-    bool location(char *&lat, char *&lon);
+    bool location(char *&lat, char *&lon, char *&date, char *&time);
 
     // query status of the network connection
     bool status();
